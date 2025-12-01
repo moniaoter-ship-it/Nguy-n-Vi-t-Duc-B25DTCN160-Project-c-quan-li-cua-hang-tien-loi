@@ -4,141 +4,60 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define MAX_PRODUCTS 100   // so luong toi da san pham
-#define MAX_HISTORY 500    // so luong toi da lich su giao dich
+#define MAX_PRODUCTS 100
+#define MAX_HISTORY 500
 
-// cau truc luu thong tin san pham
+/* ====== CAU TRUC ====== */
 typedef struct {
-    char productId[10];    // ma san pham
-    char name[50];         // ten san pham
-    char unit[10];         // don vi tinh
-    int qty;               // so luong hien tai
-    int status;            /* 1: con hang / mo khoa, 0: het hang / bi khoa */
+    char productId[16];
+    char name[64];
+    char unit[16];
+    int qty;
+    int status; 
 } Product;
 
-// cau truc luu lich su giao dich
 typedef struct {
-    char productId[10];    // ma san pham
-    int amount;            // so luong nhap/xuat
-    int type;              /* 1 = IN (nhap), 2 = OUT (xuat) */
-    char time[30];         // thoi gian giao dich
+    char productId[16];
+    int amount;
+    int type; 
+    char time[32];
 } Transaction;
-    // --- Nguyen ham mau ---
+
+/* ====== BIEN GLOBAL ====== */
+Product list[MAX_PRODUCTS];
+Transaction history[MAX_HISTORY];
+int count = 0;
+int historyCount = 0;
+
+/* ====== KHAI BAO HAM ====== */
 void clear_input();
-int is_empty(const char *str);
 int input_int();
-void str_to_lower(char *str);
-int find_product_by_id(const char *product_id);
-void print_product_row(int index);
-void init_list();
+int is_empty(const char *s);
 void get_time_str(char *buf, int size);
+void str_to_lower(char *s);
 
-Product list[MAX_PRODUCTS];   // mang luu danh sach san pham
-Transaction history[MAX_HISTORY]; // mang luu lich su giao dich
-int count = 20;               // so san pham hien co
-int historyCount = 0;         // so giao dich da thuc hien
+int find_product_by_id(const char *id);
+void print_product_row(int idx);
 
-// xoa buffer input de tranh loi nhap sai
-void clear_input() {
-    int c;
-    while((c=getchar())!='\n' && c!=EOF);
-}
+void init_list_sample();
+void add_product();
+void update_product();
+void manage_status();
+void search_products();
+void paginate_products();
+void sort_products();
+void import_product();
+void export_product();
+void show_history();
 
-// kiem tra chuoi rong hoac chi chua khoang trang
-int is_empty(const char *str) {
-    if(!str) return 1;
-    while(*str && isspace((unsigned char)*str)) str++;
-    return *str == '\0';
-}
+/* ========================== MAIN ============================= */
 
-// nhap so nguyen an toan, kiem tra hop le
-int input_int() {
-    char buffer[50];
-    long num;
-    char *endptr;
-    while(1) {
-        if (!fgets(buffer, sizeof(buffer), stdin)) continue;
-        buffer[strcspn(buffer, "\n")] = 0;
-        if(is_empty(buffer)) { printf("Khong duoc de trong! Nhap lai: "); continue; }
-        num = strtol(buffer, &endptr, 10);
-        if(*endptr != '\0' && !isspace((unsigned char)*endptr)) {
-            printf("Vui long nhap so nguyen hop le: "); continue;
-        }
-        return (int)num;
-    }
-}
-
-// chuyen chuoi thanh chu thuong
-void str_to_lower(char *str) {
-    for(int i=0; str[i]; i++) str[i] = tolower((unsigned char)str[i]);
-}
-
-// tim san pham theo ma, tra ve vi tri, -1 neu khong tim thay
-int find_product_by_id(const char *product_id) {
-    for(int i=0;i<count;i++)
-        if(strcmp(list[i].productId, product_id)==0) return i;
-    return -1;
-}
-
-// in 1 dong thong tin san pham
-void print_product_row(int index) {
-    printf("|%-5d|%-10s|%-20.20s|%-10s|%-5d|%-15s|\n",
-        index+1,
-        list[index].productId,
-        list[index].name,
-        list[index].unit,
-        list[index].qty,
-        (list[index].status==1)?"Con su dung":"Het hang/Khoa");
-}
-
-// khoi tao danh sach san pham mac dinh
-void init_list() {
-    Product temp[20] = {
-        {"C001", "Banh Mi", "Cai", 120, 1},
-        {"C002", "Sua Tuoi", "Hop", 80, 1},
-        {"C003", "Keo Dua", "Goi", 200, 1},
-        {"C004", "Gao Thom", "Kg", 50, 1},
-        {"C005", "Duong Trang", "Kg", 75, 1},
-        {"C006", "Muoi Iot", "Kg", 40, 1},
-        {"C007", "Nuoc Tuong", "Chai", 35, 1},
-        {"C008", "Nuoc Mam", "Chai", 60, 1},
-        {"C009", "Mi Goi", "Goi", 500, 1},
-        {"C010", "Thit Heo", "Kg", 30, 1},
-        {"C011", "Thit Bo", "Kg", 20, 1},
-        {"C012", "Rau Muong", "Bo", 100, 1},
-        {"C013", "Coca Cola", "Lon", 150, 1},
-        {"C014", "Pepsi", "Lon", 140, 1},
-        {"C015", "Tra Xanh", "Chai", 110, 1},
-        {"C016", "Banh Oreo", "Goi", 70, 1},
-        {"C017", "Kem Danh Rang", "Tuy", 55, 1},
-        {"C018", "Bot Giat OMO", "Kg", 90, 1},
-        {"C019", "Nuoc Rua Chen", "Chai", 65, 1},
-        {"C020", "Dau Goi Dau", "Chai", 45, 1}
-    };
-    for(int i=0;i<count;i++) list[i]=temp[i];
-}
-
-// lay thoi gian hien tai duoi dang chuoi
-void get_time_str(char *buf, int size) {
-    time_t now = time(NULL);
-    struct tm *t = localtime(&now);
-    if(t) {
-        snprintf(buf, size, "%02d/%02d/%04d %02d:%02d:%02d",
-            t->tm_mday, t->tm_mon+1, t->tm_year+1900,
-            t->tm_hour, t->tm_min, t->tm_sec);
-    } else {
-        strncpy(buf, "unknown", size);
-        buf[size-1] = '\0';
-    }
-}
-
-// --- ham main ---
 int main() {
-    init_list();   // khoi tao danh sach san pham
     int choice;
 
-    do {
-        // hien thi menu chinh
+    init_list_sample();  /* khoi tao 20 san pham mau */
+
+    while (1) {
         printf("\n==========================================\n");
         printf("|          MENU QUAN LY KHO              |\n");
         printf("|========================================|\n");
@@ -153,298 +72,447 @@ int main() {
         printf("| 0. Thoat                               |\n");
         printf("|========================================|\n");
         printf("Lua chon: ");
+        choice = input_int();
 
-        choice = input_int(); // nhap lua chon
-        char temp_id[10], temp_name[50], temp_unit[10];
-        int temp_qty, pos;
-
-        switch(choice) {
-
-            case 1: // them san pham moi
-                if(count>=MAX_PRODUCTS){ printf("Loi: Danh sach day!\n"); break; }
-
-                // nhap ma hang
-                while(1){
-                    printf("Nhap ma hang: ");
-                    if(!fgets(temp_id,sizeof(temp_id),stdin)) continue;
-                    temp_id[strcspn(temp_id,"\n")]=0;
-                    if(is_empty(temp_id)) { printf("Khong duoc de trong!\n"); continue; }
-                    if(find_product_by_id(temp_id)!=-1) { printf("Ma hang da ton tai!\n"); continue; }
-                    break;
-                }
-                strcpy(list[count].productId,temp_id);
-
-                // nhap ten hang
-                do{
-                    printf("Nhap ten hang: ");
-                    if(!fgets(temp_name,sizeof(temp_name),stdin)) continue;
-                    temp_name[strcspn(temp_name,"\n")]=0;
-                    if(is_empty(temp_name)) printf("Ten hang khong duoc de trong!\n");
-                } while(is_empty(temp_name));
-                strcpy(list[count].name,temp_name);
-
-                // nhap don vi
-                do{
-                    printf("Nhap don vi: ");
-                    if(!fgets(temp_unit,sizeof(temp_unit),stdin)) continue;
-                    temp_unit[strcspn(temp_unit,"\n")]=0;
-                    if(is_empty(temp_unit)) printf("Don vi khong duoc de trong!\n");
-                } while(is_empty(temp_unit));
-                strcpy(list[count].unit,temp_unit);
-
-                // nhap so luong
-                do{
-                    printf("Nhap so luong (>=0): ");
-                    temp_qty = input_int();
-                    if(temp_qty<0) printf("So luong phai >=0!\n");
-                } while(temp_qty<0);
-
-                list[count].qty=temp_qty;
-                list[count].status=(temp_qty>0)?1:0;
-                count++;
-                printf("Da them san pham moi! Tong san pham: %d\n",count);
-                break;
-
-            case 2: // cap nhat thong tin san pham
-                if(count==0){ printf("Danh sach rong!\n"); break; }
-                do{
-                    printf("Nhap ma hang can cap nhat: ");
-                    if(!fgets(temp_id,sizeof(temp_id),stdin)) continue;
-                    temp_id[strcspn(temp_id,"\n")]=0;
-                    if(is_empty(temp_id)) printf("Ma hang khong duoc de trong!\n");
-                } while(is_empty(temp_id));
-
-                pos=find_product_by_id(temp_id);
-                if(pos==-1){ printf("Khong tim thay san pham!\n"); break; }
-
-                printf("--- Thong tin hien tai ---\n");
-                print_product_row(pos);
-
-                // cap nhat ten
-                do{
-                    printf("Nhap ten moi: ");
-                    if(!fgets(temp_name,sizeof(temp_name),stdin)) continue;
-                    temp_name[strcspn(temp_name,"\n")]=0;
-                    if(is_empty(temp_name)) printf("Ten khong duoc rong!\n");
-                } while(is_empty(temp_name));
-                strcpy(list[pos].name,temp_name);
-
-                // cap nhat don vi
-                do{
-                    printf("Nhap don vi moi: ");
-                    if(!fgets(temp_unit,sizeof(temp_unit),stdin)) continue;
-                    temp_unit[strcspn(temp_unit,"\n")]=0;
-                    if(is_empty(temp_unit)) printf("Don vi khong duoc rong!\n");
-                } while(is_empty(temp_unit));
-                strcpy(list[pos].unit,temp_unit);
-
-                // cap nhat so luong
-                do{
-                    printf("Nhap so luong moi (>=0): ");
-                    temp_qty=input_int();
-                    if(temp_qty<0) printf("So luong phai >=0!\n");
-                } while(temp_qty<0);
-                list[pos].qty=temp_qty;
-                list[pos].status=(temp_qty>0)?1:0;
-
-                printf("Da cap nhat thanh cong!\n");
-                break;
-
-            case 3: // quan ly trang thai san pham
-                if(count==0){ printf("Danh sach rong!\n"); break; }
-                do{
-                    printf("Nhap productId: ");
-                    if(!fgets(temp_id,sizeof(temp_id),stdin)) continue;
-                    temp_id[strcspn(temp_id,"\n")]=0;
-                } while(is_empty(temp_id));
-
-                pos=find_product_by_id(temp_id);
-                if(pos==-1){ printf("Khong tim thay san pham!\n"); break; }
-
-                printf("San pham: %s (Trang thai: %s)\n",
-                    list[pos].name,(list[pos].status==1)?"Dang mo":"Da khoa/Het hang");
-                printf("1. Khoa san pham\n2. Mo khoa san pham\nLua chon: ");
-                {
-                    int action=input_int();
-                    if(action==1){
-                        if(list[pos].status==0) printf("San pham da bi khoa!\n");
-                        else { list[pos].status=0; printf("Da khoa san pham.\n"); }
-                    } else if(action==2){
-                        if(list[pos].qty==0) printf("Khong the mo khoa (SL=0)!\n");
-                        else if(list[pos].status==1) printf("San pham dang mo.\n");
-                        else { list[pos].status=1; printf("Da mo khoa san pham.\n"); }
-                    } else printf("Lua chon khong hop le!\n");
-                }
-                break;
-
-            case 4: // tra cuu san pham
-                if(count==0){ printf("Danh sach rong!\n"); break; }
-                {
-                    char search_id[10], search_name[50];
-                    int found=0;
-                    printf("Nhap productId (co the bo trong): "); fgets(search_id,sizeof(search_id),stdin);
-                    search_id[strcspn(search_id,"\n")]=0;
-                    printf("Nhap ten (co the bo trong): "); fgets(search_name,sizeof(search_name),stdin);
-                    search_name[strcspn(search_name,"\n")]=0;
-
-                    char lower_search_name[50]; strcpy(lower_search_name,search_name); str_to_lower(lower_search_name);
-
-                    if(is_empty(search_id) && is_empty(search_name)){ printf("Phai nhap it nhat 1 truong!\n"); break; }
-
-                    printf("\n--- Ket qua tim kiem ---\n");
-                    for(int i=0;i<count;i++){
-                        char lower_name[50]; strcpy(lower_name,list[i].name); str_to_lower(lower_name);
-                        int match_id=(is_empty(search_id)||strcmp(list[i].productId,search_id)==0);
-                        int match_name=(is_empty(search_name)||strstr(lower_name,lower_search_name));
-                        if(match_id && match_name){
-                            if(!found) printf("|%-5s|%-10s|%-20s|%-10s|%-5s|%-15s|\n","STT","ProductID","Ten","Don vi","SL","Trang thai");
-                            print_product_row(i);
-                            found=1;
-                        }
-                    }
-                    if(!found) printf("Khong co ket qua.\n");
-                }
-                break;
-
-            case 5: // phan trang danh sach
-                if(count==0){ printf("Danh sach rong!\n"); break; }
-                {
-                    int page=1, per_page=10, total_page=(count+per_page-1)/per_page;
-                    char temp;
-                    do{
-                        int start=(page-1)*per_page, end=start+per_page; if(end>count) end=count;
-                        printf("\n--- Trang %d/%d ---\n",page,total_page);
-                        printf("|%-5s|%-10s|%-20s|%-10s|%-5s|%-15s|\n","STT","ProductID","Ten","Don vi","SL","Trang thai");
-                        for(int i=start;i<end;i++) print_product_row(i);
-                        printf("\nN: Trang sau | M: Trang truoc | Q: Thoat\nLua chon: ");
-                        temp=getchar(); clear_input();
-                        if(temp=='N'||temp=='n'){ if(page<total_page) page++; else printf("Trang cuoi.\n"); }
-                        else if(temp=='M'||temp=='m'){ if(page>1) page--; else printf("Trang dau.\n"); }
-                        else if(temp=='Q'||temp=='q') break;
-                        else printf("Lua chon khong hop le!\n");
-                    } while(1);
-                }
-                break;
-
-            case 6: // sap xep danh sach
-                if(count==0){ printf("Danh sach rong!\n"); break; }
-                {
-                    char type[10];
-                    printf("Nhap 'TEN' de sap xep theo ten (A-Z), 'SL' theo so luong tang dan, 'Q' thoat: ");
-                    if(!fgets(type,sizeof(type),stdin)) break;
-                    type[strcspn(type,"\n")]=0; str_to_lower(type);
-                    if(strcmp(type,"q")==0) break;
-
-                    int mode=-1;
-                    if(strcmp(type,"ten")==0) mode=1;
-                    else if(strcmp(type,"sl")==0) mode=2;
-                    else { printf("Lua chon khong hop le!\n"); break; }
-
-                    for(int i=0;i<count-1;i++)
-                        for(int j=i+1;j<count;j++){
-                            int swap=0;
-                            if(mode==1 && strcmp(list[i].name,list[j].name)>0) swap=1;
-                            else if(mode==2 && list[i].qty>list[j].qty) swap=1;
-                            if(swap){ Product tmp=list[i]; list[i]=list[j]; list[j]=tmp; }
-                        }
-
-                    printf("--- Danh sach sau khi sap xep ---\n");
-                    printf("|%-5s|%-10s|%-20s|%-10s|%-5s|%-15s|\n","STT","ProductID","Ten","Don vi","SL","Trang thai");
-                    for(int i=0;i<count;i++) print_product_row(i);
-                }
-                break;
-
-            case 7: // giao dich nhap/xuat
-                {
-                    char id[10];
-                    int amount;
-                    int opt;
-
-                    do {
-                        printf("\n--- GIAO DICH XUAT / NHAP HANG HOA ---\n");
-                        printf("1. Nhap hang\n");
-                        printf("2. Xuat hang\n");
-                        printf("0. Thoat\n");
-                        printf("Lua chon: ");
-                        opt = input_int();
-
-                        if(opt == 0) break;
-
-                        printf("Nhap productId: ");
-                        if(!fgets(id, sizeof(id), stdin)) continue;
-                        id[strcspn(id, "\n")] = 0;
-
-                        int p = find_product_by_id(id);
-                        if(p == -1) {
-                            printf("Khong tim thay san pham!\n");
-                            continue;
-                        }
-
-                        if(opt == 1) { // nhap hang
-                            do {
-                                printf("Nhap so luong nhap (>0): ");
-                                amount = input_int();
-                                if(amount <= 0) printf("So luong phai > 0!\n");
-                            } while(amount <= 0);
-
-                            list[p].qty += amount;
-                            list[p].status = 1;
-
-                            if(historyCount < MAX_HISTORY) {
-                                strcpy(history[historyCount].productId, id);
-                                history[historyCount].amount = amount;
-                                history[historyCount].type = 1;
-                                get_time_str(history[historyCount].time, sizeof(history[historyCount].time));
-                                historyCount++;
-                            }
-
-                            printf("Nhap hang thanh cong. SL hien tai: %d\n", list[p].qty);
-
-                        } else if(opt == 2) { // xuat hang
-                            if(list[p].status == 0) { printf("San pham bi khoa/het hang!\n"); continue; }
-                            do {
-                                printf("Nhap so luong xuat (<= %d): ", list[p].qty);
-                                amount = input_int();
-                                if(amount <= 0 || amount > list[p].qty) printf("So luong khong hop le!\n");
-                            } while(amount <= 0 || amount > list[p].qty);
-
-                            list[p].qty -= amount;
-                            if(list[p].qty==0) list[p].status=0;
-
-                            if(historyCount < MAX_HISTORY) {
-                                strcpy(history[historyCount].productId, id);
-                                history[historyCount].amount = amount;
-                                history[historyCount].type = 2;
-                                get_time_str(history[historyCount].time, sizeof(history[historyCount].time));
-                                historyCount++;
-                            }
-
-                            printf("Xuat hang thanh cong. SL hien tai: %d\n", list[p].qty);
-                        } else printf("Lua chon khong hop le!\n");
-
-                    } while(opt != 0);
-                }
-                break;
-
-            case 8: // lich su xuat nhap
-                if(historyCount==0){ printf("Chua co giao dich nao!\n"); break; }
-                printf("\n--- LICH SU GIAO DICH ---\n");
-                printf("|%-5s|%-10s|%-10s|%-10s|\n","STT","ProductID","Loai","So luong");
-                for(int i=0;i<historyCount;i++){
-                    printf("|%-5d|%-10s|%-10s|%-10d|\n",i+1,
-                        history[i].productId,
-                        (history[i].type==1)?"Nhap":"Xuat",
-                        history[i].amount);
-                }
-                break;
-
-            case 0: printf("Thoat chuong trinh!\n"); break;
-
-            default: printf("Lua chon khong hop le!\n");
+        switch (choice) {
+            case 1: add_product(); break;
+            case 2: update_product(); break;
+            case 3: manage_status(); break;
+            case 4: search_products(); break;
+            case 5: paginate_products(); break;
+            case 6: import_product(); break;
+            case 7: export_product(); break;
+            case 8: show_history(); break;
+            case 9: sort_products(); break;
+            case 0: 
+                printf("Thoat chuong trinh...\n");
+                return 0;
+            default:
+                printf("Lua chon khong hop le!\n");
         }
-
-    } while(choice !=0);
+    }
 
     return 0;
+}
+
+/*=============== CAC HAM TIEN ICH ===========================*/
+
+/* xoa input buffer */
+void clear_input() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+}
+
+/* kiem tra chuoi rong hoac chi toan khoang trang */
+int is_empty(const char *s) {
+    if (!s) return 1;
+    while (*s && isspace((unsigned char)*s)) s++;
+    return *s == '\0';
+}
+
+/* nhap so nguyen an toan */
+int input_int() {
+    char buf[128];
+    long val;
+    char *endptr;
+
+    while (1) {
+        if (!fgets(buf, sizeof(buf), stdin)) {
+            clear_input();
+            printf("Nhap lai: ");
+            continue;
+        }
+
+        buf[strcspn(buf, "\n")] = 0;
+
+        if (is_empty(buf)) {
+            printf("Khong duoc de trong. Nhap lai: ");
+            continue;
+        }
+
+        val = strtol(buf, &endptr, 10);
+
+        if (*endptr != '\0') {
+            printf("Vui long nhap so nguyen: ");
+            continue;
+        }
+
+        return (int)val;
+    }
+}
+
+/* chuyen chuoi sang chu thuong */
+void str_to_lower(char *s) {
+    for (int i = 0; s[i]; i++) s[i] = (char)tolower((unsigned char)s[i]);
+}
+
+/* lay thoi gian hien tai dang chuoi dd/mm/yyyy hh:mm:ss */
+void get_time_str(char *buf, int size) {
+    time_t now = time(NULL);
+    struct tm *t = localtime(&now);
+    if (t) {
+        snprintf(buf, size, "%02d/%02d/%04d %02d:%02d:%02d",
+                 t->tm_mday, t->tm_mon + 1, t->tm_year + 1900,
+                 t->tm_hour, t->tm_min, t->tm_sec);
+    } else {
+        strncpy(buf, "unknown", size);
+        buf[size-1] = '\0';
+    }
+}
+
+/* ====================== CHUC NANG ============================*/
+
+/* tim index san pham theo productId, tra ve -1 neu khong tim thay */
+int find_product_by_id(const char *id) {
+    if (!id) return -1;
+    for (int i = 0; i < count; i++)
+        if (strcmp(list[i].productId, id) == 0)
+            return i;
+    return -1;
+}
+
+/* in mot dong thong tin san pham */
+void print_product_row(int i) {
+    if (i < 0 || i >= count) return;
+    printf("|%-4d|%-10s|%-30.30s|%-8s|%-6d|%-12s|\n",
+        i+1, list[i].productId, list[i].name, list[i].unit,
+        list[i].qty, (list[i].status ? "Mo" : "Khoa"));
+}
+
+/* khoi tao danh sach mau 20 san pham */
+void init_list_sample() {
+    Product temp[] = {
+        {"C001","Banh Mi","Cai",120,1},
+        {"C002","Sua Tuoi","Hop",80,1},
+        {"C003","Keo Dua","Goi",200,1},
+        {"C004","Gao","Kg",50,1},
+        {"C005","Duong","Kg",75,1},
+        {"C006","Muoi","Kg",40,1},
+        {"C007","Nuoc Tuong","Chai",35,1},
+        {"C008","Nuoc Mam","Chai",60,1},
+        {"C009","Mi Goi","Goi",500,1},
+        {"C010","Thit Heo","Kg",30,1},
+        {"C011","Thit Bo","Kg",20,1},
+        {"C012","Rau Muong","Bo",100,1},
+        {"C013","Coca Cola","Lon",150,1},
+        {"C014","Pepsi","Lon",140,1},
+        {"C015","Tra Xanh","Chai",110,1},
+        {"C016","Oreo","Goi",70,1},
+        {"C017","Kem Danh Rang","Tuy",55,1},
+        {"C018","Bot Giat","Kg",90,1},
+        {"C019","Nuoc Rua Chen","Chai",65,1},
+        {"C020","Dau Goi","Chai",45,1}
+    };
+
+    int n = sizeof(temp) / sizeof(temp[0]);
+    if (n > MAX_PRODUCTS) n = MAX_PRODUCTS;
+    for (int i = 0; i < n; i++) list[i] = temp[i];
+    count = n;
+}
+
+/* them san pham moi */
+void add_product() {
+    if (count >= MAX_PRODUCTS) {
+        printf("Kho da day!\n");
+        return;
+    }
+
+    char id[16], name[64], unit[16];
+    int qty;
+
+    while (1) {
+        printf("Nhap ma san pham: ");
+        if (!fgets(id, sizeof(id), stdin)) { clear_input(); continue; }
+        id[strcspn(id, "\n")] = 0;
+        if (is_empty(id)) { printf("Ma san pham khong duoc de trong.\n"); continue; }
+        if (find_product_by_id(id) != -1) { printf("Ma san pham da ton tai.\n"); continue; }
+        break;
+    }
+
+    do {
+        printf("Nhap ten san pham: ");
+        if (!fgets(name, sizeof(name), stdin)) { clear_input(); continue; }
+        name[strcspn(name, "\n")] = 0;
+    } while (is_empty(name));
+
+    do {
+        printf("Nhap don vi: ");
+        if (!fgets(unit, sizeof(unit), stdin)) { clear_input(); continue; }
+        unit[strcspn(unit, "\n")] = 0;
+    } while (is_empty(unit));
+
+    do {
+        printf("Nhap so luong (>=0): ");
+        qty = input_int();
+        if (qty < 0) printf("So luong phai >= 0. Nhap lai.\n");
+    } while (qty < 0);
+
+    strncpy(list[count].productId, id, sizeof(list[count].productId)-1);
+    list[count].productId[sizeof(list[count].productId)-1] = '\0';
+    strncpy(list[count].name, name, sizeof(list[count].name)-1);
+    list[count].name[sizeof(list[count].name)-1] = '\0';
+    strncpy(list[count].unit, unit, sizeof(list[count].unit)-1);
+    list[count].unit[sizeof(list[count].unit)-1] = '\0';
+    list[count].qty = qty;
+    list[count].status = (qty > 0) ? 1 : 0;
+    count++;
+    printf("Da them san pham. Tong san pham hien tai: %d\n", count);
+}
+
+/* cap nhat thong tin san pham */
+void update_product() {
+    if (count == 0) { printf("Danh sach rong.\n"); return; }
+
+    char id[16], name[64], unit[16];
+    int pos, qty;
+
+    do {
+        printf("Nhap ma hang can cap nhat: ");
+        if (!fgets(id, sizeof(id), stdin)) { clear_input(); continue; }
+        id[strcspn(id, "\n")] = 0;
+    } while (is_empty(id));
+
+    pos = find_product_by_id(id);
+    if (pos == -1) { printf("Khong tim thay san pham.\n"); return; }
+
+    printf("--- Thong tin hien tai ---\n");
+    print_product_row(pos);
+
+    do {
+        printf("Nhap ten moi: ");
+        if (!fgets(name, sizeof(name), stdin)) { clear_input(); continue; }
+        name[strcspn(name, "\n")] = 0;
+    } while (is_empty(name));
+    strncpy(list[pos].name, name, sizeof(list[pos].name)-1);
+    list[pos].name[sizeof(list[pos].name)-1] = '\0';
+
+    do {
+        printf("Nhap don vi moi: ");
+        if (!fgets(unit, sizeof(unit), stdin)) { clear_input(); continue; }
+        unit[strcspn(unit, "\n")] = 0;
+    } while (is_empty(unit));
+    strncpy(list[pos].unit, unit, sizeof(list[pos].unit)-1);
+    list[pos].unit[sizeof(list[pos].unit)-1] = '\0';
+
+    do {
+        printf("Nhap so luong moi (>=0): ");
+        qty = input_int();
+        if (qty < 0) printf("So luong phai >= 0. Nhap lai.\n");
+    } while (qty < 0);
+    list[pos].qty = qty;
+    list[pos].status = (qty > 0) ? 1 : 0;
+
+    printf("Cap nhat thanh cong.\n");
+}
+
+/* quan ly trang thai (khoa / mo) */
+void manage_status() {
+    if (count == 0) { printf("Danh sach rong.\n"); return; }
+
+    char id[16];
+    int pos, action;
+
+    do {
+        printf("Nhap productId: ");
+        if (!fgets(id, sizeof(id), stdin)) { clear_input(); continue; }
+        id[strcspn(id, "\n")] = 0;
+    } while (is_empty(id));
+
+    pos = find_product_by_id(id);
+    if (pos == -1) { printf("Khong tim thay san pham.\n"); return; }
+
+    printf("San pham: %s (Trang thai: %s)\n", list[pos].name,
+           (list[pos].status == 1) ? "Dang mo" : "Da khoa/Het hang");
+    printf("1. Khoa san pham\n2. Mo khoa san pham\nLua chon: ");
+    action = input_int();
+    if (action == 1) {
+        if (list[pos].status == 0) printf("San pham da bi khoa.\n");
+        else { list[pos].status = 0; printf("Da khoa san pham.\n"); }
+    } else if (action == 2) {
+        if (list[pos].qty == 0) printf("Khong the mo khoa (SL = 0)!\n");
+        else if (list[pos].status == 1) printf("San pham dang mo.\n");
+        else { list[pos].status = 1; printf("Da mo khoa san pham.\n"); }
+    } else {
+        printf("Lua chon khong hop le.\n");
+    }
+}
+
+/* tim kiem san pham theo id hoac ten (khong phan biet hoa thuong) */
+void search_products() {
+    if (count == 0) { printf("Danh sach rong.\n"); return; }
+
+    char search_id[16], search_name[64];
+    int found = 0;
+
+    printf("Nhap productId (co the bo trong): ");
+    if (!fgets(search_id, sizeof(search_id), stdin)) { clear_input(); strcpy(search_id, ""); }
+    search_id[strcspn(search_id, "\n")] = 0;
+
+    printf("Nhap ten (co the bo trong): ");
+    if (!fgets(search_name, sizeof(search_name), stdin)) { clear_input(); strcpy(search_name, ""); }
+    search_name[strcspn(search_name, "\n")] = 0;
+
+    if (is_empty(search_id) && is_empty(search_name)) {
+        printf("Phai nhap it nhat 1 truong!\n");
+        return;
+    }
+
+    char lower_search_name[64];
+    strncpy(lower_search_name, search_name, sizeof(lower_search_name)-1);
+    lower_search_name[sizeof(lower_search_name)-1] = '\0';
+    str_to_lower(lower_search_name);
+
+    for (int i = 0; i < count; i++) {
+        char lower_name[64];
+        strncpy(lower_name, list[i].name, sizeof(lower_name)-1);
+        lower_name[sizeof(lower_name)-1] = '\0';
+        str_to_lower(lower_name);
+
+        int match_id = (is_empty(search_id) || strcmp(list[i].productId, search_id) == 0);
+        int match_name = (is_empty(search_name) || strstr(lower_name, lower_search_name) != NULL);
+
+        if (match_id && match_name) {
+            if (!found) {
+                printf("|%-4s|%-10s|%-30s|%-8s|%-6s|%-12s|\n",
+                       "STT", "ProductID", "Ten", "Don vi", "SL", "Trang thai");
+            }
+            print_product_row(i);
+            found = 1;
+        }
+    }
+
+    if (!found) printf("Khong co ket qua.\n");
+}
+
+/* phan trang danh sach san pham */
+void paginate_products() {
+    if (count == 0) { printf("Danh sach rong.\n"); return; }
+    int per_page = 10;
+    int total_page = (count + per_page - 1) / per_page;
+    int page = 1;
+
+    while (1) {
+        int start = (page - 1) * per_page;
+        int end = start + per_page;
+        if (end > count) end = count;
+        printf("\n--- Trang %d/%d ---\n", page, total_page);
+        printf("|%-4s|%-10s|%-30s|%-8s|%-6s|%-12s|\n",
+               "STT", "ProductID", "Ten", "Don vi", "SL", "Trang thai");
+        for (int i = start; i < end; i++) print_product_row(i);
+
+        printf("\nN: Trang sau | M: Trang truoc | Q: Thoat\nLua chon: ");
+        char buf[8];
+        if (!fgets(buf, sizeof(buf), stdin)) { clear_input(); continue; }
+        char c = buf[0];
+        if (c == 'N' || c == 'n') {
+            if (page < total_page) page++;
+            else printf("Trang cuoi.\n");
+        } else if (c == 'M' || c == 'm') {
+            if (page > 1) page--;
+            else printf("Trang dau.\n");
+        } else if (c == 'Q' || c == 'q') {
+            break;
+        } else {
+            printf("Lua chon khong hop le.\n");
+        }
+    }
+}
+
+/* sap xep san pham theo productId tang dan (co the thay doi) */
+void sort_products() {
+    if (count < 2) { printf("Khong co gi de sap xep.\n"); return; }
+    for (int i = 0; i < count - 1; i++)
+        for (int j = i + 1; j < count; j++)
+            if (strcmp(list[i].productId, list[j].productId) > 0) {
+                Product tmp = list[i];
+                list[i] = list[j];
+                list[j] = tmp;
+            }
+    printf("Da sap xep theo productId!\n");
+}
+
+/* them ban ghi lich su */
+void add_history_record(const char *productId, int amount, int type) {
+    if (historyCount >= MAX_HISTORY) {
+        printf("Chu y: Da dat toi da luu lich su (%d giao dich). Khong luu them.\n", MAX_HISTORY);
+        return;
+    }
+    strncpy(history[historyCount].productId, productId, sizeof(history[historyCount].productId)-1);
+    history[historyCount].productId[sizeof(history[historyCount].productId)-1] = '\0';
+    history[historyCount].amount = amount;
+    history[historyCount].type = type;
+    get_time_str(history[historyCount].time, sizeof(history[historyCount].time));
+    historyCount++;
+}
+
+/* menu nhap hang (import) */
+void import_product() {
+    if (count == 0) { printf("Danh sach san pham rong.\n"); return; }
+    char id[16];
+    int pos, amount;
+
+    do {
+        printf("Nhap productId de nhap hang: ");
+        if (!fgets(id, sizeof(id), stdin)) { clear_input(); continue; }
+        id[strcspn(id, "\n")] = 0;
+    } while (is_empty(id));
+
+    pos = find_product_by_id(id);
+    if (pos == -1) { printf("Khong tim thay san pham.\n"); return; }
+
+    do {
+        printf("Nhap so luong nhap (>0): ");
+        amount = input_int();
+        if (amount <= 0) printf("So luong phai > 0. Nhap lai.\n");
+    } while (amount <= 0);
+
+    list[pos].qty += amount;
+    list[pos].status = 1;
+    add_history_record(id, amount, 1);
+    printf("Nhap hang thanh cong. SL hien tai: %d\n", list[pos].qty);
+}
+
+/* menu xuat hang (export) */
+void export_product() {
+    if (count == 0) { printf("Danh sach san pham rong.\n"); return; }
+    char id[16];
+    int pos, amount;
+
+    do {
+        printf("Nhap productId de xuat hang: ");
+        if (!fgets(id, sizeof(id), stdin)) { clear_input(); continue; }
+        id[strcspn(id, "\n")] = 0;
+    } while (is_empty(id));
+
+    pos = find_product_by_id(id);
+    if (pos == -1) { printf("Khong tim thay san pham.\n"); return; }
+
+    if (list[pos].status == 0) { printf("San pham dang khoa/het hang.\n"); return; }
+
+    do {
+        printf("Nhap so luong xuat (<= %d): ", list[pos].qty);
+        amount = input_int();
+        if (amount <= 0 || amount > list[pos].qty) printf("So luong khong hop le. Nhap lai.\n");
+    } while (amount <= 0 || amount > list[pos].qty);
+
+    list[pos].qty -= amount;
+    if (list[pos].qty == 0) list[pos].status = 0;
+    add_history_record(id, amount, 2);
+    printf("Xuat hang thanh cong. SL hien tai: %d\n", list[pos].qty);
+}
+
+/* hien thi lich su giao dich */
+void show_history() {
+    if (historyCount == 0) { printf("Chua co giao dich nao.\n"); return; }
+    printf("\n===== LICH SU GIAO DICH =====\n");
+    printf("|%-4s|%-12s|%-10s|%-10s|%-20s|\n", "STT", "ProductID", "Loai", "So luong", "Thoi gian");
+    for (int i = 0; i < historyCount; i++) {
+        printf("|%-4d|%-12s|%-10s|%-10d|%-20s|\n",
+               i + 1,
+               history[i].productId,
+               (history[i].type == 1) ? "Nhap" : "Xuat",
+               history[i].amount,
+               history[i].time);
+    }
 }
 
