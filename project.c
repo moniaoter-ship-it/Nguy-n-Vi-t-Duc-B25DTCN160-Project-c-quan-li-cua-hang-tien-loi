@@ -230,7 +230,7 @@ void init_list_sample() {
     count = n;
 }
 
-/* them san pham moi (TOI UU XU LY BUFFER) */
+/* them san pham moi  */
 void add_product() {
     if (count >= MAX_PRODUCTS) {
         printf("Kho da day!\n");
@@ -288,7 +288,7 @@ void add_product() {
     printf("Da them san pham. Tong san pham hien tai: %d\n", count);
 }
 
-/* cap nhat thong tin san pham (TOI UU XU LY BUFFER) */
+/* cap nhat thong tin san pham  */
 void update_product() {
     if (count == 0) { printf("Danh sach rong.\n"); return; }
 
@@ -343,7 +343,7 @@ void update_product() {
     printf("Cap nhat thanh cong.\n");
 }
 
-/* quan ly trang thai (khoa / mo) (TOI UU XU LY BUFFER) */
+/* quan ly trang thai (khoa / mo)  */
 void manage_status() {
     if (count == 0) { printf("Danh sach rong.\n"); return; }
 
@@ -378,7 +378,7 @@ void manage_status() {
     }
 }
 
-/* tim kiem san pham theo id hoac ten (TOI UU XU LY BUFFER) */
+/* tim kiem san pham theo id hoac ten  */
 void search_products() {
     if (count == 0) { printf("Danh sach rong.\n"); return; }
 
@@ -431,7 +431,7 @@ void search_products() {
     if (!found) printf("Khong co ket qua.\n");
 }
 
-/* phan trang danh sach san pham (TOI UU XU LY BUFFER) */
+/* phan trang danh sach san pham  */
 void paginate_products() {
     if (count == 0) { printf("Danh sach rong.\n"); return; }
     int per_page = 10;
@@ -522,7 +522,7 @@ void add_history_record(const char *productId, int amount, int type) {
     historyCount++;
 }
 
-/* menu nhap hang (import) (TOI UU XU LY BUFFER) */
+/* menu nhap hang (import)  */
 void import_product() {
     if (count == 0) { printf("Danh sach san pham rong.\n"); return; }
 
@@ -558,7 +558,7 @@ void import_product() {
     }
 }
 
-/* menu xuat hang (export) (TOI UU XU LY BUFFER) */
+/* menu xuat hang (export)  */
 void export_product() {
     if (count == 0) { printf("Danh sach san pham rong.\n"); return; }
 
