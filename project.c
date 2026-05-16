@@ -65,9 +65,8 @@ CREATE TABLE Bookings (
     FOREIGN KEY (room_id) REFERENCES Rooms(room_id)
 );
 
--- =========================
 -- TABLE: Room_Log
--- =========================
+
 CREATE TABLE Room_Log (
     log_id INT PRIMARY KEY,
     room_id INT,
