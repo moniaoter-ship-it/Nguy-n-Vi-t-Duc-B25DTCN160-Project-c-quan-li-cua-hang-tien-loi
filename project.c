@@ -1,369 +1,214 @@
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
-#include <stdlib.h>
-#include <time.h>
+ĐÁNH GIÁ CHẤT LƯỢNG KỸ NĂNG
+LẬP TRÌNH PYTHON – ĐỀ THI CUỐI MÔN
+[Đề bài số 007]
+THỜI GIAN: 90 phút
+*******************
+Yêu cầu:
+Tạo project folder theo hướng dẫn sau:
+Tạo folder [Mã Lớp]_[Họ Tên]_[Mã Đề] chứa toàn bộ file mã nguồn
+Ví dụ: HN_KS25_CNTT1_NguyenVanA_007
+Sau khi hoàn thành project, đẩy code lên github và nộp link cho người phụ trách
+Công nghệ & công cụ sử dụng: Python, Visual Studio Code
+Thực hành
+1. Bối cảnh
+Một thư viện đang quản lý thông tin mượn sách và tiền phạt bằng Excel thủ công nên gặp nhiều vấn đề:
+Dễ nhập trùng mã phiếu mượn
+Khó kiểm soát dữ liệu sai như số ngày mượn, số ngày trễ hạn
+Khó tìm kiếm người mượn hoặc sách đã mượn
+Tính tiền phạt thủ công dễ sai
+Khó thống kê số lượng phiếu mượn theo từng mức phạt
+Vì vậy cần xây dựng hệ thống CLI Python quản lý thư viện và tính tiền phạt tự động.
+2. Mục tiêu hệ thống
+Xây dựng chương trình Python cho phép:
+Quản lý danh sách phiếu mượn sách bằng OOP
+Thêm, hiển thị, cập nhật, xóa phiếu mượn
+Tìm kiếm phiếu mượn
+Tính tiền phạt tự động
+Phân loại mức phạt tự động
+Thống kê số lượng phiếu mượn theo từng mức phạt
+3. Yêu cầu thiết kế OOP
+3.1. Class LibraryBorrow
+Class LibraryBorrow dùng để mô tả thông tin mượn sách của một bạn đọc.
+Thuộc tính bắt buộc:
+id — Mã phiếu mượn
+reader_name — Họ tên bạn đọc
+book_name — Tên sách
+borrow_days — Số ngày đã mượn
+late_days — Số ngày trễ hạn
+fine_per_day — Tiền phạt mỗi ngày trễ
+total_fine — Tổng tiền phạt
+fine_type — Phân loại mức phạt
+Phương thức:
+calculate_fine()
+classify_fine()
+Yêu cầu:
+calculate_fine() dùng để tính và cập nhật total_fine.
+classify_fine() dùng để phân loại và cập nhật fine_type.
+Không nhập total_fine và fine_type từ bàn phím.
+total_fine và fine_type phải được cập nhật thông qua method của class LibraryBorrow.
+3.2. Class LibraryBorrowManager
+Class LibraryBorrowManager dùng để quản lý danh sách phiếu mượn sách.
+class LibraryBorrowManager:
+    def __init__(self):
+        self.borrow_records = []
+Phương thức:
+add_borrow_record()
+show_all()
+update_borrow_record()
+delete_borrow_record()
+search_borrow_record()
+4. Công thức xử lý
+4.1. Tính tổng tiền phạt
+Tổng tiền phạt = Số ngày trễ hạn × Tiền phạt mỗi ngày trễ
+Lưu ý: Nếu số ngày trễ hạn bằng 0 thì tổng tiền phạt là 0.
+4.2. Phân loại mức phạt
+Tổng tiền phạt
+Phân loại mức phạt
+Bằng 0
+Không phạt
+Trên 0 đến dưới 50,000
+Nhẹ
+Từ 50,000 đến dưới 200,000
+Trung bình
+Từ 200,000 trở lên
+Nặng
+
+5. Menu chương trình
+================ MENU ================
+1. Hiển thị danh sách phiếu mượn
+2. Thêm phiếu mượn mới
+3. Cập nhật phiếu mượn
+4. Xóa phiếu mượn
+5. Tìm kiếm phiếu mượn
+6. Thoát
+=====================================
+Nhập lựa chọn của bạn:
+6. Yêu cầu chi tiết chức năng
+Chức năng 1. Hiển thị danh sách phiếu mượn  (15 điểm)
+Hiển thị danh sách phiếu mượn dạng bảng gồm các cột:
+Mã phiếu mượn
+Họ tên bạn đọc
+Tên sách
+Số ngày đã mượn
+Số ngày trễ hạn
+Tiền phạt mỗi ngày
+Tổng tiền phạt
+Phân loại mức phạt
+Nếu danh sách rỗng, hiển thị thông báo: Danh sách phiếu mượn đang rỗng!
+Chức năng 2. Thêm phiếu mượn mới  (20 điểm)
+Người dùng nhập:
+Mã phiếu mượn
+Họ tên bạn đọc
+Tên sách
+Số ngày đã mượn
+Số ngày trễ hạn
+Tiền phạt mỗi ngày trễ
+Ràng buộc
+Mã phiếu mượn không được rỗng
+Mã phiếu mượn không được trùng
+Họ tên bạn đọc không được rỗng
+Tên sách không được rỗng
+Số ngày đã mượn phải là số nguyên từ 1 đến 365
+Số ngày trễ hạn phải là số nguyên từ 0 đến 365
+Số ngày trễ hạn không được lớn hơn số ngày đã mượn
+Tiền phạt mỗi ngày trễ phải lớn hơn hoặc bằng 0
+Sau khi thêm thành công, chương trình phải tự động:
+Tính tổng tiền phạt
+Phân loại mức phạt
+Thêm phiếu mượn vào danh sách
+Thông báo: Thêm phiếu mượn thành công!
+Chức năng 3. Cập nhật phiếu mượn  (20 điểm)
+Người dùng nhập mã phiếu mượn cần cập nhật.
+Nếu mã phiếu mượn không tồn tại, hiển thị: Không tìm thấy phiếu mượn cần cập nhật!
+Nếu tồn tại, cho phép cập nhật:
+Số ngày đã mượn
+Số ngày trễ hạn
+Tiền phạt mỗi ngày trễ
+Sau khi cập nhật thành công, chương trình phải:
+Tính lại tổng tiền phạt
+Cập nhật lại phân loại mức phạt
+Thông báo: Cập nhật phiếu mượn thành công!
+Chức năng 4. Xóa phiếu mượn  (15 điểm)
+Người dùng nhập mã phiếu mượn cần xóa.
+Nếu mã phiếu mượn không tồn tại, hiển thị: Không tìm thấy phiếu mượn cần xóa!
+Nếu tồn tại, hỏi xác nhận: Bạn có chắc muốn xóa phiếu mượn này không? (Y/N):
+Nếu nhập Y hoặc y → xóa phiếu mượn
+Nếu nhập N hoặc n → hủy thao tác
+Các lựa chọn khác → thông báo lựa chọn không hợp lệ
+Thông báo khi xóa thành công: Xóa phiếu mượn thành công!
+Thông báo khi hủy: Đã hủy thao tác xóa!
+Chức năng 5. Tìm kiếm phiếu mượn  (15 điểm)
+Chương trình hỗ trợ tìm kiếm theo tên bạn đọc hoặc tên sách.
+Yêu cầu:
+Tìm kiếm gần đúng
+Không phân biệt chữ hoa, chữ thường
+Có thể tìm theo một phần tên bạn đọc hoặc một phần tên sách
+Ví dụ:
+Nhập từ khóa tìm kiếm: python
+Có thể tìm thấy:
+Nguyễn Văn An - Lập trình Python cơ bản
+Trần Thị Bình - Python OOP
+Nếu không tìm thấy, hiển thị: Không tìm thấy phiếu mượn phù hợp!
+Chức năng 6. Thoát chương trình  (5 điểm)
+Khi người dùng chọn chức năng thoát, chương trình kết thúc an toàn và in lời chào:
+Cảm ơn bạn đã sử dụng hệ thống quản lý thư viện!
+7. Yêu cầu kỹ thuật bắt buộc
+7.1. OOP bắt buộc
+Phải có class LibraryBorrow
+Phải có class LibraryBorrowManager
+Không dùng dict làm cấu trúc chính để quản lý phiếu mượn
+Danh sách phiếu mượn phải được quản lý thông qua list object
+7.2. Encapsulation
+Không tính tiền phạt từ bên ngoài class LibraryBorrow
+total_fine phải được cập nhật thông qua method calculate_fine()
+fine_type phải được cập nhật thông qua method classify_fine()
+Không nhập trực tiếp total_fine và fine_type từ bàn phím
+7.3. Clean Code
+Mỗi function chỉ làm một nhiệm vụ
+Không viết toàn bộ logic trong main
+Có hàm riêng để nhập số hợp lệ
+Có hàm riêng để hiển thị menu
+Tên biến, tên hàm rõ ràng, dễ hiểu
+Code có khả năng đọc và bảo trì
+7.4. Validate dữ liệu
+Chương trình cần kiểm tra:
+Không trùng mã phiếu mượn
+Không để trống mã phiếu mượn
+Không để trống họ tên bạn đọc
+Không để trống tên sách
+Số ngày đã mượn phải là số nguyên hợp lệ
+Số ngày trễ hạn phải là số nguyên hợp lệ
+Số ngày đã mượn nằm trong khoảng từ 1 đến 365
+Số ngày trễ hạn nằm trong khoảng từ 0 đến 365
+Số ngày trễ hạn không được lớn hơn số ngày đã mượn
+Tiền phạt mỗi ngày trễ không được âm
+7.5. Xử lý lỗi
+Chương trình cần xử lý các trường hợp:
+Danh sách rỗng
+Không tìm thấy phiếu mượn
+Nhập sai kiểu dữ liệu
+Nhập sai lựa chọn menu
+Người dùng không xác nhận xóa
+Số ngày trễ hạn lớn hơn số ngày đã mượn
+8. Thang điểm
+Nội dung
+Điểm
+Hiển thị danh sách phiếu mượn
+15
+Thêm phiếu mượn
+20
+Cập nhật phiếu mượn
+20
+Xóa phiếu mượn
+15
+Tìm kiếm phiếu mượn
+15
+Clean code + validate
+10
+Thoát chương trình + UX
+5
+Tổng
+100
+
+Lưu ý: Chỉ tính điểm khi chức năng chương trình thực hiện đúng theo yêu cầu nghiệp vụ được giao
 
--- =========================
--- PHẦN 1: THIẾT KẾ CSDL
--- =========================
-
-DROP DATABASE IF EXISTS HotelBookingDB;
-CREATE DATABASE HotelBookingDB;
-USE HotelBookingDB;
-
--- =========================
--- TABLE: Guests
--- =========================
-CREATE TABLE Guests (
-    guest_id INT PRIMARY KEY,
-    full_name VARCHAR(100) NOT NULL,
-    email VARCHAR(100) NOT NULL UNIQUE,
-    phone VARCHAR(20) NOT NULL UNIQUE,
-    loyalty_points INT DEFAULT 0 CHECK (loyalty_points >= 0)
-);
-
--- =========================
--- TABLE: Guest_Profiles
--- =========================
-CREATE TABLE Guest_Profiles (
-    profile_id INT PRIMARY KEY,
-    guest_id INT,
-    address VARCHAR(255) NOT NULL,
-    birthday DATE NOT NULL,
-    national_id VARCHAR(20) NOT NULL UNIQUE,
-
-    FOREIGN KEY (guest_id) REFERENCES Guests(guest_id)
-);
-
--- =========================
--- TABLE: Rooms
--- =========================
-CREATE TABLE Rooms (
-    room_id INT PRIMARY KEY,
-    room_name VARCHAR(100) NOT NULL,
-    room_type ENUM('Standard', 'Deluxe', 'Suite') NOT NULL,
-    price_per_night DECIMAL(15,2) NOT NULL CHECK (price_per_night > 0),
-    room_status ENUM('Available', 'Occupied', 'Maintenance') NOT NULL
-);
-
--- =========================
--- TABLE: Bookings
--- =========================
-CREATE TABLE Bookings (
-    booking_id INT PRIMARY KEY,
-    guest_id INT,
-    check_in_date DATETIME NOT NULL,
-    check_out_date DATETIME NOT NULL,
-    total_charge DECIMAL(15,2) NOT NULL CHECK (total_charge > 0),
-    booking_status ENUM('Pending', 'Completed', 'Cancelled') NOT NULL,
-    room_id INT,
-
-    CHECK (check_out_date > check_in_date),
-
-    FOREIGN KEY (guest_id) REFERENCES Guests(guest_id),
-    FOREIGN KEY (room_id) REFERENCES Rooms(room_id)
-);
-
--- TABLE: Room_Log
-
-CREATE TABLE Room_Log (
-    log_id INT PRIMARY KEY,
-    room_id INT,
-    action_type ENUM('Check-in', 'Check-out', 'Maintenance', 'Cancelled') NOT NULL,
-    change_note VARCHAR(255) NOT NULL,
-    logged_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-
-    FOREIGN KEY (room_id) REFERENCES Rooms(room_id)
-);
-
--- =========================
--- PHẦN 1.2: INSERT DỮ LIỆU
--- =========================
-
--- Guests
-INSERT INTO Guests
-VALUES
-(1, 'Nguyen Van A', 'anv@gmail.com', '901234567', 150),
-(2, 'Tran Thi B', 'btt@gmail.com', '912345678', 500),
-(3, 'Le Van C', 'cle@yahoo.com', '922334455', 0),
-(4, 'Pham Minh D', 'dpham@hotmail.com', '933445566', 1000),
-(5, 'Hoang Anh E', 'ehoang@gmail.com', '944556677', 20);
-
--- Guest Profiles
-INSERT INTO Guest_Profiles
-VALUES
-(101, 1, '123 Le Loi, Q1, HCM', '1990-05-15', '12345'),
-(102, 2, '456 Nguyen Hue, Q1, HCM', '1985-10-20', '23456'),
-(103, 3, '789 Phan Chu Trinh, Da Nang', '1995-12-01', '34567'),
-(104, 4, '101 Hoang Hoa Tham, Ha Noi', '1988-03-25', '45678'),
-(105, 5, '202 Tran Hung Dao, Can Tho', '2000-07-10', '56789');
-
--- Rooms
-INSERT INTO Rooms
-VALUES
-(1, 'Room 101', 'Standard', 100000, 'Available'),
-(2, 'Room 202', 'Deluxe', 5000000, 'Occupied'),
-(3, 'Room 303', 'Suite', 300000, 'Available'),
-(4, 'Room 104', 'Standard', 200000, 'Occupied'),
-(5, 'Room 205', 'Deluxe', 2000000, 'Maintenance');
-
--- Bookings
-INSERT INTO Bookings
-VALUES
-(1001, 1, '2023-11-15 10:30:00', '2023-11-18 12:00:00', 300000, 'Completed', 1),
-(1002, 2, '2023-12-01 14:20:00', '2023-12-04 12:00:00', 20000000, 'Completed', 2),
-(1003, 1, '2021-01-10 09:15:00', '2021-01-11 12:00:00', 5000000, 'Pending', 2),
-(1004, 3, '2023-05-20 16:45:00', '2023-05-22 12:00:00', 900000, 'Cancelled', 3),
-(1005, 4, '2024-01-18 11:00:00', '2024-01-20 12:00:00', 8000000, 'Completed', 4);
-
--- Room Log
-INSERT INTO Room_Log
-VALUES
-(1, 1, 'Check-in', 'Guest checked in', '2023-10-01 08:00:00'),
-(2, 1, 'Check-out', 'Guest checked out', '2023-11-15 10:35:00'),
-(3, 4, 'Maintenance', 'Room reported as damaged', '2023-11-20 15:00:00'),
-(4, 2, 'Check-in', 'New guest arrival', '2023-11-25 09:00:00'),
-(5, 3, 'Maintenance', 'Schedule maintenance', '2023-12-01 13:00:00');
-
--- =========================
--- UPDATE
--- =========================
-UPDATE Guests
-SET loyalty_points = loyalty_points + 200
-WHERE email LIKE '%@gmail.com';
-
--- =========================
--- DELETE
--- =========================
-DELETE FROM Room_Log
-WHERE logged_at < '2023-11-10';
-
--- =========================
--- PHẦN 2: TRUY VẤN CƠ BẢN
--- =========================
-
--- Câu 1
-SELECT room_name, price_per_night, room_status
-FROM Rooms
-WHERE price_per_night > 1000000
-   OR room_status = 'Maintenance'
-   OR room_type = 'Suite';
-
--- Câu 2
-SELECT full_name, email
-FROM Guests
-WHERE email LIKE '%@gmail.com'
-  AND loyalty_points BETWEEN 50 AND 300;
-
--- Câu 3
-SELECT *
-FROM Bookings
-ORDER BY total_charge DESC
-LIMIT 3 OFFSET 1;
-
--- =========================
--- PHẦN 3: TRUY VẤN NÂNG CAO
--- =========================
-
--- Câu 1
-SELECT
-    g.full_name,
-    gp.national_id,
-    b.booking_id,
-    b.check_in_date,
-    b.total_charge
-FROM Guests g
-JOIN Guest_Profiles gp
-    ON g.guest_id = gp.guest_id
-JOIN Bookings b
-    ON g.guest_id = b.guest_id;
-
--- Câu 2
-SELECT
-    g.guest_id,
-    g.full_name,
-    SUM(b.total_charge) AS total_payment
-FROM Guests g
-JOIN Bookings b
-    ON g.guest_id = b.guest_id
-WHERE b.booking_status = 'Completed'
-GROUP BY g.guest_id, g.full_name
-HAVING SUM(b.total_charge) > 20000000;
-
--- Câu 3
-SELECT *
-FROM Rooms
-WHERE room_id IN (
-    SELECT room_id
-    FROM Bookings
-    WHERE booking_status = 'Completed'
-)
-AND price_per_night = (
-    SELECT MAX(price_per_night)
-    FROM Rooms
-    WHERE room_id IN (
-        SELECT room_id
-        FROM Bookings
-        WHERE booking_status = 'Completed'
-    )
-);
-
--- =========================
--- PHẦN 4: INDEX & VIEW
--- =========================
-
--- Câu 1
-CREATE INDEX idx_booking_status_cgh
-ON Bookings(booking_status, check_in_date);
-
--- Câu 2
-CREATE VIEW vw_guest_booking_stats AS
-SELECT
-    g.full_name AS guest_name,
-    COUNT(b.booking_id) AS total_bookings,
-    SUM(
-        CASE
-            WHEN b.booking_status <> 'Cancelled'
-            THEN b.total_charge
-            ELSE 0
-        END
-    ) AS total_paid
-FROM Guests g
-LEFT JOIN Bookings b
-    ON g.guest_id = b.guest_id
-GROUP BY g.guest_id, g.full_name;
-
--- =========================
--- PHẦN 5: TRIGGER
--- =========================
-
--- Câu 1
-DELIMITER $$
-
-CREATE TRIGGER trg_after_update_booking_status
-AFTER UPDATE ON Bookings
-FOR EACH ROW
-BEGIN
-    IF NEW.booking_status = 'Completed'
-       AND OLD.booking_status <> 'Completed' THEN
-
-        INSERT INTO Room_Log (
-            room_id,
-            action_type,
-            change_note,
-            logged_at
-        )
-        VALUES (
-            NEW.room_id,
-            'Check-out',
-            'Booking Completed',
-            NOW()
-        );
-
-    END IF;
-END $$
-
-DELIMITER ;
-
--- Câu 2
-DELIMITER $$
-
-CREATE TRIGGER trg_update_loyalty_points
-AFTER INSERT ON Bookings
-FOR EACH ROW
-BEGIN
-    IF NEW.booking_status = 'Completed' THEN
-
-        UPDATE Guests
-        SET loyalty_points = loyalty_points + FLOOR(NEW.total_charge / 1000000) * 2
-        WHERE guest_id = NEW.guest_id;
-
-    END IF;
-END $$
-
-DELIMITER ;
-
--- =========================
--- PHẦN 6: STORED PROCEDURE
--- =========================
-
--- Câu 1
-DELIMITER $$
-
-CREATE PROCEDURE sp_get_room_status(IN p_room_id INT)
-BEGIN
-    DECLARE v_status VARCHAR(20);
-
-    SELECT room_status
-    INTO v_status
-    FROM Rooms
-    WHERE room_id = p_room_id;
-
-    IF v_status = 'Available' THEN
-        SELECT 'Phòng trống' AS message;
-
-    ELSEIF v_status = 'Occupied' THEN
-        SELECT 'Đang có khách' AS message;
-
-    ELSEIF v_status = 'Maintenance' THEN
-        SELECT 'Bảo trì' AS message;
-
-    END IF;
-END $$
-
-DELIMITER ;
-
--- Test
-CALL sp_get_room_status(1);
-
--- =========================
--- Procedure hủy booking
--- =========================
-
-DELIMITER $$
-
-CREATE PROCEDURE sp_cancel_booking(IN p_booking_id INT)
-BEGIN
-    DECLARE v_room_id INT;
-
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        ROLLBACK;
-    END;
-
-    START TRANSACTION;
-
-    SELECT room_id
-    INTO v_room_id
-    FROM Bookings
-    WHERE booking_id = p_booking_id;
-
-    UPDATE Bookings
-    SET booking_status = 'Cancelled'
-    WHERE booking_id = p_booking_id;
-
-    UPDATE Rooms
-    SET room_status = 'Available'
-    WHERE room_id = v_room_id;
-
-    INSERT INTO Room_Log (
-        room_id,
-        action_type,
-        change_note,
-        logged_at
-    )
-    VALUES (
-        v_room_id,
-        'Cancelled',
-        'Booking Cancelled',
-        NOW()
-    );
-
-    COMMIT;
-END $$
-
-DELIMITER ;
-
--- Test
-CALL sp_cancel_booking(1003);
